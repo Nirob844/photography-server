@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-// require('crypto').randomBytes(64).toString('hex')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+// require('crypto').randomBytes(64).toString('hex')
 require('dotenv').config();
 
 const app = express();
@@ -14,6 +14,38 @@ app.use(express.json());
 
 
 
+
+
+const uri = `mongodb+srv://${process.env.BD_USER}:${process.env.DB_PASSWORD}@cluster0.9mv6kq4.mongodb.net/?retryWrites=true&w=majority`;
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+
+async function run() {
+    try {
+        const serviceCollection = client.db('photography').collection('services');
+
+
+        app.get('/services', async (req, res) => {
+            const query = {}
+            const cursor = serviceCollection.find(query);
+            const services = await cursor.toArray();
+            res.send(services);
+        });
+
+        app.get('/services/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const service = await serviceCollection.findOne(query);
+            res.send(service);
+        });
+
+    }
+    finally {
+
+    }
+
+}
+
+run().catch(err => console.error(err));
 
 
 
