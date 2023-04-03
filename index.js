@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 // require('crypto').randomBytes(64).toString('hex')
 require('dotenv').config();
@@ -67,7 +68,13 @@ async function run() {
             const result = await reviewCollection.insertOne(review);
             res.send(result);
         });
-        app.get('/add-review', verifyJWT, async (req, res) => {
+        app.get('/add-review', async (req, res) => {
+            const query = {}
+            const cursor = reviewCollection.find(query);
+            const review = await cursor.toArray();
+            res.send(review);
+        });
+        app.get('/user-review', verifyJWT, async (req, res) => {
             const decoded = req.decoded;
 
             if (decoded.email !== req.query.email) {
