@@ -24,7 +24,7 @@ function verifyJWT(req, res, next) {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-        return res.status(401).send({ message: 'unauthorized access' });
+        return res.status(401).send({ message: 'jwt unauthorized access' });
     }
     const token = authHeader.split(' ')[1];
 
@@ -92,6 +92,27 @@ async function run() {
             const review = await cursor.toArray();
             res.send(review);
         });
+
+        app.patch('/user-review/:id', async (req, res) => {
+            const id = req.params.id;
+            const status = req.body.status
+            const query = { _id: new ObjectId(id) }
+            const updatedDoc = {
+                $set: {
+                    status: status
+                }
+            }
+            const result = await reviewCollection.updateOne(query, updatedDoc);
+            res.send(result);
+        })
+
+        app.delete('/user-review/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await reviewCollection.deleteOne(query);
+            res.send(result);
+        })
+
 
     }
     finally {
